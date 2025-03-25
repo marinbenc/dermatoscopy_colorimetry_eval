@@ -5,3 +5,7 @@ Readme todo:
 - [ ] How to generate data for dull razor notebook
 - [ ] Overview of files and methods
 - [ ] How to use kmeans colorimetry on your own data
+
+Dependencies:
+coral_pytorch
+opencv etc.
