@@ -1,0 +1,302 @@
+\documentclass[a4paper,conference]{IEEEtran}
+
+% this template contains common rules used for conference paper on ELMAR symposium therefore explanation of used packages/commands are not included in template
+\usepackage{ifpdf}
+\usepackage{cite}
+\usepackage[pdftex]{graphicx}
+\usepackage{array}
+\usepackage{mdwmath}
+\usepackage{mdwtab}
+\usepackage{amssymb,latexsym}
+\usepackage{stfloats}
+\usepackage{amsmath}
+\usepackage{subfig}
+\usepackage{todonotes}
+
+\usepackage[numbers]{natbib}
+\bibliographystyle{IEEEtranN}
+
+
+\usepackage{algcompatible}
+
+\usepackage{algorithm}
+
+\usepackage[font={footnotesize}]{caption}
+
+\usepackage{balance}
+
+\usepackage[utf8]{inputenc}
+
+\usepackage[T1]{fontenc}
+
+\usepackage[compatible]{algpseudocode}
+
+\renewcommand{\figurename}{Figure}
+
+\usepackage[most]{tcolorbox}
+\newtcolorbox{highlighted}{colback=yellow,breakable}
+
+
+\DeclareRobustCommand*{\IEEEauthorrefmark}[1]{%
+\raisebox{0pt}[0pt][0pt]{\textsuperscript{\footnotesize\ensuremath{#1}}}}
+
+\hyphenation{op-tical net-works semi-conduc-tor}
+
+\renewcommand\IEEEkeywordsname{Keywords}
+
+\renewcommand{\citedash}{--}
+\captionsetup{labelsep=period}
+
+
+% copyright notice added:
+\makeatletter
+\setlength{\footskip}{20pt} 
+\def\ps@IEEEtitlepagestyle{%
+  \def\@oddfoot{\mycopyrightnotice}%
+  \def\@evenfoot{}%
+}
+\def\mycopyrightnotice{%
+  {\footnotesize Appropriate copyright notice to be put here in camera-ready version of the paper. Instructions will be available in Online Paper Submission section of the ELMAR web.\hfill}% <--- Change here
+  \gdef\mycopyrightnotice{}% just in case
+}
+
+\begin{document}
+
+
+\title{Skin Color Measurement from Dermatoscopic Images: An Evaluation on a Synthetic Dataset} %capitalize each word
+% The template is designed so that author affiliations are not repeated each time for multiple authors of the same affiliation. Please keep your affiliations as succinct as possible (for example, do not differentiate among departments of the same organization).
+\author{\IEEEauthorblockN{
+Marin Benčević\IEEEauthorrefmark{1},
+Robert Šojo\IEEEauthorrefmark{1},
+Irena Galić\IEEEauthorrefmark{1}}
+\IEEEauthorblockA{\IEEEauthorrefmark{1}
+Faculty of Electrical Engineering, Computer Science and Information Technology\\
+Osijek, Croatia}
+{\it marin.bencevic@ferit.hr}}
+
+\maketitle
+
+\begin{abstract}
+This electronic document is a "live" template. The various components of your paper [title, text, heads, etc.] are already defined.
+\end{abstract}
+
+\begin{IEEEkeywords}
+Component; Formatting; Style; Styling; Insert
+\end{IEEEkeywords}
+
+\IEEEpeerreviewmaketitle
+
+\section{Introduction}
+\label{sec1}
+
+- problem: datasets don't contain skin color information
+- most people use colorimetry methods from pixels which suffer from problems
+- this study aims to evaluate these methods to see which ones are better
+- we use a synthetic dataset
+  - why? there is GT information on melanosome fraction
+  - we can vary lighting while keeeping all other variables stable
+  - to see if these generalize to real world images, we also perform evaluation
+
+- subsection: colorimetry methods overview
+ - kinyanu and others
+ - nn based methods
+ - preprocessing methods
+ - common expected problems
+
+Deep neural networks (DNNs) for classifying dermatoscopic images  are widely used and are a very active field of research \cite{kurtanskyEffectPatientContextual2024, estevaDermatologistlevelClassificationSkin2017}. However, studies on clinical images have shown DNN models can have marked biases against dark-skinned individuals \cite{daneshjouDisparitiesDermatologyAI2022, bevanDetectingMelanomaFairly2022, galdranDataDrivenColorAugmentation2017}. It is possible that the same biases also extend to dermatoscopic images. However, accurately measuring this bias requires knowing the skin color of the patient in an image. To date, there are no publicly available datasets of dermatoscopic images with associated skin color data. As a result, researchers often estimate skin color directly from the image pixels, commonly relying on colorimetry methods such as the Individual Typology Angle (ITA). However, such estimations are highly sensitive to lighting, image composition, and variations in acquisition protocols. Indeed, a recent study by \citet{kalbRevisitingSkinTone2023} compared four methods of estimating skin colors from dermatoscopic images approaches and identified substantial discrepancies among them, underscoring the potential for erroneous or inconsistent measurements.
+
+Building on the insights by \citet{kalbRevisitingSkinTone2023}, the present work aims to systematically evaluate colorimetry-based skin color measurement techniques. Our central contribution is the use of publicly available system for rendering dermatoscopic images called S-SYNTH \cite{kim2024ssynth} in which the \textit{ground truth} (GT) melanin content of the skin can be precisely specified during rendering. This allows us to experimentally vary the lighting conditions while keeping all other variables constant, enabling an in-depth assessment of each technique’s sensitivity to illumination changes and accuracy in measuring skin tone. Furthermore, to assess how well the findings extend to real dermatoscopic images, we conduct parallel experiments on real-world data to evaluate the generalizability of the evaluated methods.
+
+This is the first paper to systematically evaluate colorimetry methods on a synthetic dataset with ground-truth melanin levels, 
+enabling precise control over lighting conditions. We compare four colorimetry techniques and a neural network classifier: 
+segmentation-based ITA estimation is the most consistent but demands reliable segmentation; color quantization achieves comparable 
+performance without segmentation; and patch-based approaches show substantial, lighting-dependent biases. Meanwhile, a neural 
+network trained via ordinal regression outperforms all pixel-based methods, albeit at the cost of requiring labeled training data and unknown generalization performance. 
+
+\section{Background} 
+
+We adopt two widely used metrics for assessing skin tone: the Fitzpatrick scale (FP) \cite{fitzpatrickValidityPracticalitySunReactive1988} and the Individual Typology Angle (ITA) \cite{farkasInternationalAnthropometricStudy2005}, both frequently employed in skin color bias research \cite{pmlr-v81-buolamwini18a, grohEvaluatingDeepNeural2021, kinyanjuiEstimatingSkinTone2019}. 
+
+\textbf{Fitzpatrick scale.}  This categorization divides skin types into six groups based on UV response, from Type~I (very fair, always burns) to Type~VI (deeply pigmented, never burns). Although labeling Fitzpatrick types from images can be subjective \cite{grohEvaluatingDeepNeural2021}, it serves as a useful framework for large-scale bias analyses \cite{pmlr-v81-buolamwini18a}.
+
+\textbf{Individual Typology Angle.} ITA provides a continuous measure of constitutive pigmentation, with higher values corresponding to lighter skin. Image pixels are transformed into CIE-Lab space and the following equation is applied \cite{kinyanjuiEstimatingSkinTone2019}:
+\begin{equation}\label{eq:ita}
+  \mathrm{ITA}(L^*, b^*) = \arctan\!\Bigl(\frac{L^* - 50}{b^*}\Bigr)\,\frac{180}{\pi},
+\end{equation}
+where \(L^*\) denotes lightness and \(b^*\) the blue--yellow axis. While convenient, ITA is strongly affected by lighting and image composition, limiting its utility for classification without additional normalization steps.
+
+Existing methods for estimating skin color from dermatoscopic images generally fall into four categories: 
+\textbf{segmentation-based}, \textbf{patch-based}, \textbf{color quantization}, and \textbf{model-based} approaches. Below, 
+we describe each category and highlight key advantages and limitations:
+
+\begin{enumerate}
+    \item \textbf{Segmentation-based methods.} These approaches isolate healthy skin regions—either using image processing techniques or deep neural networks—before computing skin color from the segmented areas. By discarding lesions or artifacts, researchers can estimate the mean pixel values of healthy skin (e.g., in a CIE-Lab color space), typically removing outlier pixels \cite{kinyanjuiEstimatingSkinTone2019}. However, segmentation models themselves may introduce biases and often require substantial labeled data if they rely on machine learning.
+
+    \item \textbf{Patch-based methods.} Instead of explicit segmentation, these methods sample multiple patches across the image and compute the mean color of each patch. One common heuristic then selects the “lightest” patch as the representative skin color, on the assumption that lesions or shadows are darker than healthy skin \cite{bevanDetectingMelanomaFairly2022}. While this simplifies the segmentation step, it can be sensitive to how patches are chosen and may incorrectly discard valid skin regions that appear darker under certain lighting conditions. It also does not account for areas of hypopigmentation which are common in dark-skinned individuals.
+
+    \item \textbf{Color quantization.} Here, clustering algorithms (e.g., k-means) reduce the image to a small number of dominant colors \cite{bencevicUnderstandingSkinColor2024a}. The largest color cluster that plausibly represents skin can then be used to estimate skin color. This approach benefits from being relatively simple to implement and less reliant on segmentation labels, but it may fail when the “skin cluster” is not clearly distinguishable from lesion or background clusters, or when a uniformly colored lesion takes up the majority of the image.
+
+    \item \textbf{Model-based approaches.} In these methods, a classifier (e.g., a deep neural network) is trained to predict skin color categories directly from the image \cite{grohEvaluatingDeepNeural2021}. Such an approach can, in principle, learn invariance to lighting and image composition. However, it requires high-quality labels and sufficient diversity in the training data to ensure that all relevant skin tones are well-represented. As noted earlier, there are no publicly available datasets with labeled skin colors of dermatoscopic images, and it is unclear how well models trained on clinical images generalize to dermatoscopic images \cite{bencevicUnderstandingSkinColor2024a}.
+\end{enumerate}
+
+In this study, we evaluate a representative implementation from each of these categories, using both synthetic data with controlled ground truth skin color and real-world dermatoscopic images. This comprehensive analysis clarifies the strengths and weaknesses of each approach and provides insights on their robustness to lighting variations.
+
+\section{Methods}
+
+The synthetic dataset comprises 10,000 images generated by varying melanin content, lesion shape, hair models, and 18 distinct lighting conditions, among other factors, following the procedure outlined in \cite{ssynth}. These data, which can be downloaded from \cite{ssynth}, offer an extensive range of controlled parameters and include ground-truth melanosome fraction measurements for each image.
+
+To obtain ground-truth Fitzpatrick (FP) labels, we use the segmentation masks provided by SSYNTH to remove lesion regions and compute the mean ITA value for each image, discarding outlier pixels. The resulting ITA values are then binned into FP types using the thresholds from \cite{kinyanjuiFairnessClassifiersSkin2020}. We compute the mean melanosome fraction within each FP bin and empirically derive thresholds for melanosome fractions to define synthetic Fitzpatrick types. Specifically, let \(m\) denote the melanosome fraction; then the synthetic FP label, \(\operatorname{FP}_{\text{syn}}\), is given by:
+
+\begin{equation}
+\operatorname{FP}_{\text{syn}}(m) = 
+\begin{cases}
+1 & \text{if } m < 0.048,\\
+2 & \text{if } 0.048 \le m < 0.155,\\
+3 & \text{if } 0.155 \le m < 0.271,\\
+4 & \text{if } 0.271 \le m < 0.336,\\
+5 & \text{if } 0.336 \le m < 0.383,\\
+6 & \text{if } m \ge 0.383.\\
+\end{cases}
+\label{eq:mel_fraction_to_fp}
+\end{equation}
+
+By defining the synthetic Fitzpatrick labels directly from the melanosome fraction rather than from pixel-based color values, we ensure that these labels remain invariant to the lighting variations in the dataset.
+
+\subsection{Colorimetry Methods Implementation Details}
+
+\textbf{Segmentation-based methods.} Using the ground-truth (GT) segmentation labels, we discard lesion pixels and compute the median pixel values for \(L^*\) and \(b^*\). We then remove outliers by excluding values that lie more than one standard deviation away from these medians, and use the  median of the remaining values to calculate the ITA (see Eq.~\ref{eq:ita}). This is equivalent to the ITA calculation method in \cite{kim2024ssynth}.
+
+\textbf{Patch-based methods.} For patch-based color estimation, we use the method from \citet{bevanDetectingMelanomaFairly2022} as reproduced by \citet{kalbRevisitingSkinTone2023}, using $\operatorname{arctan2}$ for the calculation instead of $\operatorname{arctan}$. Rather than performing a full segmentation, \(20\times 20\) patches along the borders of the image are selected and their ITA is calculated. Since lesions and blemishes tend to be darker than the surrounding healthy skin, the highest ITA value (i.e., the lightest patch) is chosen as the representative skin color. This approach leads to a very biased outcome, which we correct by linearly calibrating the outputs to the segmentation-based ITA estimation.
+
+\textbf{Color quantization.} In this approach, following \citet{bencevicUnderstandingSkinColor2024a}, healthy skin pixels are first isolated by applying contrast-limited adaptive histogram 
+equalization (CLAHE) on the \(L^*\) channel and then Otsu thresholding the value 
+channel in HSV followed by morphological expansion. The resulting mask is used to exclude lesions, hairs, and other 
+artefacts, and the remaining skin region is converted back to CIELAB. Then, k-means clustering is performed on the non-masked pixel 
+values, determining the optimal number of clusters following~\cite{satopaFindingKneedleHaystack2023}. The most populated cluster is taken as the estimated 
+skin color, from which ITA is computed (Eq.~\ref{eq:ita}).
+
+\textbf{Model-based approach.} We employ a VGG11~\cite{simonyanVeryDeepConvolutional2015} backbone to train an ordinal regression model following the method 
+in~\cite{coral2020}, using synthetic Fitzpatrick (FP) labels derived by binning melanosome fractions (Eq.~\ref{eq:mel_fraction_to_fp}). The dataset 
+of 10{,}000 synthetic images is split into 80\% for training, 10\% for validation, and 10\% for testing. We train for 100~epochs 
+and retain the model checkpoint with the lowest validation loss. All reported results are on the held-out test set. \todo{mention blurring!}
+
+\section{Results}
+
+We first compare the three ITA measurement approaches described in Section~\ref{subsec:methods_colorimetry}: 
+segmentation-based, patch-based, and color quantization. As shown in Figure~\ref{fig:ita_lin_bias}, the patch-based 
+approach exhibits a consistent linear bias relative to the segmentation-based ITA values under most lighting conditions 
+(16 out of 18), prompting us to apply an ordinary least squares (OLS) regression to calibrate its estimates.
+
+Our assumption is that a good estimate of ITA would be perfectly correlated with the melanosome fraction used during the synthetic image generation, as ITA should not vary based on lighting or other variables. Thus, to measure the quality of each prediction method, we compute Pearson's correlation between each ITA estimate and the ground-truth melanosome fraction, 
+and generate 95\% confidence intervals via 1{,}000 bootstrap resamples. Table~\ref{tab:ita_corr_ci} presents the results 
+for the segmentation-based, color quantization, and calibrated patch-based methods.
+\begin{table}[h!]
+    \centering
+    \caption{Pearson's correlation (\(\rho\)) between each ITA estimate and ground-truth melanosome fraction, with
+    95\% confidence intervals (CIs) over 1{,}000 bootstrap resamples.}
+    \label{tab:ita_corr_ci}
+    \def\arraystretch{1.2}
+    \begin{tabular}{lcc}
+        \textbf{Method} & \boldmath$\rho$ & \textbf{95\% CI} \\
+        Segmentation-based & 0.705 & [0.695, 0.714] \\
+        Color quantization & 0.683 & [0.671, 0.693] \\
+        Calibrated patch-based & 0.624 & [0.610, 0.638]
+    \end{tabular}
+\end{table}
+
+A Bland--Altman analysis (Figure~\ref{fig:ita_bland_altman}, placeholder) reveals that the color quantization method agrees 
+more closely with the segmentation-based ITA, whereas the patch-based method exhibits a consistent bias relative to 
+segmentation. This discrepancy is further amplified under certain lighting conditions, even after calibration.
+
+\subsection{Sensitivity to Lighting Conditions}
+
+\noindent
+ITA measurements should ideally capture melanin content rather than external illumination. To assess this, we fit two 
+linear models for each estimation method (segmentation-based, color quantization, and calibrated patch-based): $\mathrm{ITA} \sim \mathrm{mel}$, and $\mathrm{ITA} \sim \mathrm{mel} + \mathrm{light}$,
+where  \(\mathrm{mel}\) is the melanosome fraction used during synthetic image generation, while \(\mathrm{light}\) is a categorical variable indicating the 18 lighting conditions. We then compute the coefficient 
+of determination (\(R^2\)) for both models and measure how much adding \(\mathrm{light}\) improves the fit 
+(\(\Delta R^2\)). Table~\ref{tab:lighting_invariance} summarizes these results.
+
+\begin{table}[h!]
+    \centering
+    \caption{Coefficient of determination $R^2$ under two linear models of ITA, with and without including lighting conditions. \(\Delta R^2\) indicates the difference between the two $R^2$ values, i.e. the relative sensitivity of each ITA estimate method to lighting conditions.}
+    \label{tab:lighting_invariance}
+    \begin{tabular}{lccc}
+        \textbf{Method} & $ITA \sim mel$ & $ITA \sim mel + light$ & $\Delta R^2$ \\
+        Segmentation-based    & 0.497 & 0.722 & 0.225 \\
+        Color quantization    & 0.466 & 0.678 & 0.212 \\
+        Calibrated patch-based & 0.389 & 0.695 & 0.306 \\
+    \end{tabular}
+\end{table}
+
+\noindent
+From Table~\ref{tab:lighting_invariance}, adding the lighting term increases \(R^2\) for each method, revealing that lighting still exerts a significant influence on ITA estimates. Notably, the calibrated patch-based approach shows the largest \(\Delta R^2\) (0.306), indicating a higher sensitivity to illumination compared to the other methods.
+
+\subsection{Fitzpatrick Type Estimation}
+
+We evaluate the ability of each method to predict the Fitzpatrick type (FP) of an image, where the ground truth is derived by binning 
+the melanosome fraction based on the thresholds in Eq.~\ref{eq:mel_fraction_to_fp}. For the three ITA-based approaches (segmentation-based, 
+patch-based, and color quantization), we convert the estimated ITA values into FP types using the standard thresholds proposed 
+in \cite{kinyanjuiEstimatingSkinTone2019}. Meanwhile, the model-based estimation directly predicts the most likely FP category 
+through an ordinal regression framework (CORAL) \cite{coral2020} using a neural network.
+
+Figure~\ref{fig:fp_confusion_matrices} (placeholder) shows the confusion matrices for each of the four methods compared against the 
+ground-truth FP labels. Table~\ref{tab:fp_estimation_results} summarizes the balanced accuracy, macro precision, macro recall, macro F1, 
+and quadratically weighted kappa (see Section~\ref{sec:metrics}) for each approach.
+
+\begin{table}[h!]
+    \centering
+    \caption{Fitzpatrick Type Estimation Results: Balanced Accuracy (Acc), Macro Precision (Prec), Macro Recall (Rec), 
+    Macro F1 (F1), and Quadratically Weighted Kappa (Kappa).}
+    \label{tab:fp_estimation_results}
+    \begin{tabular}{lccccc}
+    \textbf{Method} & \textbf{Acc} & \textbf{Prec} & \textbf{Rec} & \textbf{F1} & \textbf{Kappa} \\
+    Segmentation-based & 0.2925 & 0.4645 & 0.2925 & 0.2804 & 0.5916 \\
+    Color quantization & 0.2876 & 0.4261 & 0.2876 & 0.2879 & 0.5921 \\
+    Calibrated patch-based & 0.2710 & 0.3188 & 0.2710 & 0.2479 & 0.5176 \\
+    Model-based & 0.7163 & 0.7056 & 0.7163 & 0.7028 & 0.9474 \\
+    \end{tabular}
+\end{table}
+
+\noindent
+From Table~\ref{tab:fp_estimation_results}, the model-based approach achieves the highest performance on every 
+metric. Among the ITA-based methods, segmentation-based and 
+color quantization exhibit slightly higher balanced accuracy and kappa than the patch-based approach. The confusion matrices (Figure~\ref{fig:fp_confusion_matrices}) reveal that errors in the ITA-based 
+methods often involve adjacent FP classes.
+
+
+\section{Conclusion and Discussion}
+
+Our results indicate that segmentation-based ITA estimation yields the most robust performance across varied lighting conditions, 
+but this method inherently depends on accurate lesion segmentation---itself potentially prone to bias and error when derived from 
+learned models. By contrast, color quantization avoids the need for segmentation and achieves comparable accuracy and lighting 
+invariance, making it a compelling, interpretable alternative that relies solely on simple clustering rather than complex models.
+
+Patch-based methods, however, exhibit substantial bias tied to individual lighting setups. In practice, each lighting condition 
+appears to introduce a consistent offset that would necessitate calibration if the approach were to be used reliably. Similarly, 
+preprocessing steps such as Dullrazor may be less effective in dark-skinned images, and color-based heuristics like “the lightest patch is 
+always healthy skin” can fail when hypopigmentation and other abnormalities are present. Authors proposing new colorimetry 
+techniques should account for these pitfalls and consider calibration strategies for different lighting scenarios.
+
+For neural networks trained to classify Fitzpatrick types, a useful strategy involves heavy image blurring before model input. 
+This blurring step mitigates small differences in acquisition conditions, directing the network’s attention toward overall color 
+tones rather than fine-grained image artifacts. Ultimately, our findings suggest that robust illumination handling and careful 
+preprocessing are essential for fair and accurate skin color measurement, whether relying on direct colorimetry or learned models.
+
+Overall, these findings underscore the importance of considering both algorithmic and practical factors when estimating skin color. 
+While the choice of method will depend on 
+data availability and specific clinical objectives, robust calibration to lighting conditions and thoughtfully designed preprocessing 
+can greatly enhance the reliability and fairness of skin color measurements. We anticipate that the insights and recommendations 
+presented here will inform the development of future colorimetry methods that are both accurate and equitable across diverse 
+patient populations.
+
+\section*{Acknowledgment}
+
+The authors would like to thank...
+
+% Refer simply to the reference number, as in [3]—do not use "Ref. [3]" or "reference [3]" except at the beginning of a sentence: "Reference [3] was the first . . ." Unless there are six authors or more give all authors' names; do not use "et al.". Papers that have not been published, even if they have been submitted for publication, should be cited as "unpublished" [4]. Papers that have been accepted for publication should be cited as "in press" [5]. Capitalize only the first word in a paper title, except for proper nouns and element symbols. For papers published in translation journals, please give the English citation first, followed by the original foreign-language citation [6].
+% All references should be cited in text.
+\bibliographystyle{ieeetr}
+\bibliography{bibliography}
+
+\end{document}
