@@ -187,6 +187,12 @@ segmentation-based, patch-based, and color quantization. As shown in Figure~\ref
 approach exhibits a consistent linear bias relative to the segmentation-based ITA values under most lighting conditions 
 (16 out of 18), prompting us to apply an ordinary least squares (OLS) regression to calibrate its estimates.
 
+\begin{figure}[htbp]
+\centerline{\includegraphics[width=\columnwidth]{../figures/ita_ssynth_vs_ita_bevan.pdf}}
+\caption{Example of a figure caption.}
+\label{fig:ita_lin_bias}
+\end{figure}
+
 Our assumption is that a good estimate of ITA would be perfectly correlated with the melanosome fraction used during the synthetic image generation, as ITA should not vary based on lighting or other variables. Thus, to measure the quality of each prediction method, we compute Pearson's correlation between each ITA estimate and the ground-truth melanosome fraction, 
 and generate 95\% confidence intervals via 1{,}000 bootstrap resamples. Table~\ref{tab:ita_corr_ci} presents the results 
 for the segmentation-based, color quantization, and calibrated patch-based methods.
