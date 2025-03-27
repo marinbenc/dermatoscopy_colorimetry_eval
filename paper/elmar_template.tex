@@ -85,7 +85,7 @@ This paper presents a comprehensive evaluation of skin color measurement methods
 \end{abstract}
 
 \begin{IEEEkeywords}
-Component; Formatting; Style; Styling; Insert
+AI fairness; biometrics; colorimetry; dermatoscopy
 \end{IEEEkeywords}
 
 \IEEEpeerreviewmaketitle
@@ -109,9 +109,9 @@ A recent study by \citet{kalbRevisitingSkinTone2023} compared four methods of es
 
 To do so, we adopt two widely used metrics for assessing skin tone: the Fitzpatrick scale (FP) \cite{fitzpatrickValidityPracticalitySunReactive1988} and the Individual Typology Angle (ITA) \cite{farkasInternationalAnthropometricStudy2005}, both frequently employed in skin color bias research \cite{grohEvaluatingDeepNeural2021, kinyanjuiEstimatingSkinTone2019}.
 
-\textbf{Fitzpatrick scale.}  This categorization divides skin types into six groups based on UV response, from Type~I (very fair, always burns) to Type~VI (deeply pigmented, never burns). Although labeling Fitzpatrick types from images can be subjective \cite{grohEvaluatingDeepNeural2021}, it serves as a useful framework for large-scale bias analyses.
+\subsubsection{Fitzpatrick scale}  This categorization divides skin types into six groups based on UV response, from Type~I (very fair, always burns) to Type~VI (deeply pigmented, never burns). Although labeling Fitzpatrick types from images can be subjective \cite{grohEvaluatingDeepNeural2021}, it serves as a useful framework for large-scale bias analyses.
 
-\textbf{Individual Typology Angle.} ITA provides a continuous measure of constitutive pigmentation, with higher values corresponding to lighter skin. Image pixels are transformed into CIE-Lab space and the following equation is applied \cite{kinyanjuiEstimatingSkinTone2019}:
+\subsubsection{Individual Typology Angle} ITA provides a continuous measure of constitutive pigmentation, with higher values corresponding to lighter skin. Image pixels are transformed into CIE-Lab space and the following equation is applied \cite{kinyanjuiEstimatingSkinTone2019}:
 \begin{equation}\label{eq:ita}
   \mathrm{ITA}(L^*, b^*) = \arctan\!\Bigl(\frac{L^* - 50}{b^*}\Bigr)\,\frac{180}{\pi},
 \end{equation}
@@ -123,7 +123,7 @@ The synthetic dataset comprises 10,000 dermatoscopic images and segmentation mas
 
 \subsection{Obtaining the Ground-Truth Fitzpatrick Type Labels}
 
-To obtain ground-truth Fitzpatrick (FP) labels, we use the segmentation masks provided by SSYNTH to remove lesion regions and compute the mean ITA value for each image, discarding outlier pixels. The resulting ITA values are then binned into FP types using the thresholds from \cite{kinyanjuiFairnessClassifiersSkin2020}. We empirically derive thresholds for binning by computing the mean melanosome fraction within each FP bin and taking the mid-point between each mean as the threshold values for binning.
+To obtain ground-truth Fitzpatrick (FP) labels, we use the segmentation masks provided by SSYNTH to remove lesion regions and compute the mean ITA value for each image, discarding outlier pixels. The resulting ITA values are then binned into FP types using the thresholds from \cite{kinyanjuiEstimatingSkinTone2019}. We empirically derive thresholds for binning by computing the mean melanosome fraction within each FP bin and taking the mid-point between each mean as the threshold values for binning.
 
 By defining the synthetic Fitzpatrick labels directly from the melanosome fraction rather than from pixel-based color values, we ensure that these labels remain invariant to the lighting variations in the dataset.
 
@@ -174,6 +174,12 @@ are from the test set.
 
 \section{Results}
 
+\begin{figure}[b]
+\centerline{\includegraphics[width=\columnwidth]{../figures/ita_diffs_vert.pdf}}
+\caption{Bland-Altman plots comparing the color quantization and the patch-based to the segmentation-based ITA estimates. Colors indicate different lighting conditions used during image generation, a total of 18 categories.}
+\label{fig:ita_bland_altman}
+\end{figure}
+
 We first compare the three ITA measurement approaches described in Section~\ref{sec:colorimetry}: 
 segmentation-based, patch-based, and color quantization. As shown in Fig.~\ref{fig:ita_bland_altman}, the patch-based 
 approach exhibits a consistent linear bias relative to the segmentation-based ITA values under most lighting conditions, prompting us to apply an ordinary least squares (OLS) regression to calibrate its estimates.
@@ -195,15 +201,15 @@ for the segmentation-based, color quantization, and calibrated patch-based metho
     \end{tabular}
 \end{table}
 
-A Bland--Altman analysis (Fig.~\ref{fig:ita_bland_altman}, placeholder) reveals that the color quantization method agrees 
+A Bland--Altman analysis (Fig.~\ref{fig:ita_bland_altman}) reveals that the color quantization method agrees 
 more closely with the segmentation-based ITA, whereas the patch-based method exhibits a consistent bias relative to 
 segmentation. This discrepancy is further amplified under certain lighting conditions, even after calibration.
 
-\begin{figure}[htbp]
-\centerline{\includegraphics[width=0.9\columnwidth]{../figures/ita_diffs_vert.pdf}}
-\caption{Bland-Altman plots comparing the color quantization and the patch-based to the segmentation-based ITA estimates. Colors indicate different lighting conditions used during image generation, a total of 18 categories.}
-\label{fig:ita_bland_altman}
-\end{figure}
+\begin{figure*}[htbp]
+\centerline{\includegraphics[width=\textwidth]{../figures/confusion_matrices.pdf}}
+\caption{Confusion matrices of Fitzpatrick (FP) type estimates as compared to the ground-truth FP, calculated by binning the melanosome fraction. Numbers indicate \% the total number of test images ($n = 1000$).}
+\label{fig:fp_confusion_matrices}
+\end{figure*}
 
 \subsection{Sensitivity to Lighting Conditions}
 
@@ -258,13 +264,6 @@ From Table~\ref{tab:fp_estimation_results}, the model-based approach achieves th
 metric. Among the ITA-based methods, segmentation-based and 
 color quantization exhibit slightly higher balanced accuracy and kappa than the patch-based approach. The confusion matrices (Fig.~\ref{fig:fp_confusion_matrices}) reveal that errors in the ITA-based 
 methods often involve adjacent FP classes.
-
-
-\begin{figure*}[htbp]
-\centerline{\includegraphics[width=0.9\textwidth]{../figures/confusion_matrices.pdf}}
-\caption{Confusion matrices of Fitzpatrick (FP) type estimates as compared to the ground-truth FP, calculated by binning the melanosome fraction. Numbers indicate \% the total number of test images ($n = 1000$).}
-\label{fig:fp_confusion_matrices}
-\end{figure*}
 
 \section{Conclusion and Discussion}
 

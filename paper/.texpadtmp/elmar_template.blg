@@ -2,7 +2,7 @@ This is BibTeX, Version 0.99d (TeX Live 2022)
 Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
 The top-level auxiliary file: /Users/marinbenc/Projects/dermatoscopy_colorimetry_eval/paper/.texpadtmp/elmar_template.aux
 The style file: IEEEtranN.bst
-Illegal, another \bibstyle command---line 60 of file /Users/marinbenc/Projects/dermatoscopy_colorimetry_eval/paper/.texpadtmp/elmar_template.aux
+Illegal, another \bibstyle command---line 72 of file /Users/marinbenc/Projects/dermatoscopy_colorimetry_eval/paper/.texpadtmp/elmar_template.aux
  : \bibstyle
  :          {ieeetr}
 I'm skipping whatever remains of this command
@@ -22,45 +22,45 @@ Reallocated global_strs (elt_size=200001) to 20 items from 10.
 Reallocated glb_str_end (elt_size=4) to 20 items from 10.
 
 Done.
-You've used 15 entries,
+You've used 14 entries,
             4855 wiz_defined-function locations,
-            1051 strings with 13525 characters,
-and the built_in function-call counts, 15199 in all, are:
-= -- 1190
-> -- 775
-< -- 65
-+ -- 350
-- -- 200
-* -- 941
-:= -- 2225
-add.period$ -- 32
-call.type$ -- 15
-change.case$ -- 32
-chr.to.int$ -- 141
-cite$ -- 15
-duplicate$ -- 996
-empty$ -- 1006
-format.name$ -- 234
-if$ -- 3385
+            1042 strings with 13094 characters,
+and the built_in function-call counts, 13572 in all, are:
+= -- 1075
+> -- 683
+< -- 55
++ -- 307
+- -- 178
+* -- 839
+:= -- 2007
+add.period$ -- 29
+call.type$ -- 14
+change.case$ -- 28
+chr.to.int$ -- 116
+cite$ -- 14
+duplicate$ -- 898
+empty$ -- 893
+format.name$ -- 209
+if$ -- 3013
 int.to.chr$ -- 1
-int.to.str$ -- 16
-missing$ -- 199
-newline$ -- 69
-num.names$ -- 47
-pop$ -- 553
+int.to.str$ -- 15
+missing$ -- 177
+newline$ -- 66
+num.names$ -- 42
+pop$ -- 492
 preamble$ -- 1
-purify$ -- 15
+purify$ -- 14
 quote$ -- 2
-skip$ -- 1034
+skip$ -- 926
 stack$ -- 0
-substring$ -- 391
-swap$ -- 763
-text.length$ -- 20
+substring$ -- 332
+swap$ -- 678
+text.length$ -- 18
 text.prefix$ -- 0
 top$ -- 6
-type$ -- 235
+type$ -- 219
 warning$ -- 0
-while$ -- 55
+while$ -- 48
 width$ -- 0
-write$ -- 190
+write$ -- 177
 (There was 1 error message)
