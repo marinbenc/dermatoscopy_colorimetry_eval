@@ -1,11 +1,23 @@
 # Skin Color Measurement from Dermatoscopic Images: An Evaluation on a Synthetic Dataset
 
-This is the code for the paper Skin Color Measurement from Dermatoscopic Images: An Evaluation on a Synthetic Dataset. The paper is available at: <TODO>, [PDF](paper/elmar_template.pdf).
+This is the code for the paper Skin Color Measurement from Dermatoscopic Images: An Evaluation on a Synthetic Dataset. The paper is available at: 
+
+M. Benčević, R. Šojo and I. Galić, "Skin Color Measurement from Dermatoscopic Images: An Evaluation on a Synthetic Dataset," 2025 International Symposium ELMAR, Zadar, Croatia, 2025, pp. 89-92, doi: 10.1109/ELMAR66948.2025.11194005.
+https://ieeexplore.ieee.org/document/11194005
 
 To cite the paper, please use the following BibTeX entry:
 
 ```bibtex
-TODO
+@INPROCEEDINGS{bencevic2025skincolor,
+  author={Benčević, Marin and Šojo, Robert and Galić, Irena},
+  booktitle={2025 International Symposium ELMAR}, 
+  title={Skin Color Measurement from Dermatoscopic Images: An Evaluation on a Synthetic Dataset}, 
+  year={2025},
+  volume={},
+  number={},
+  pages={89-92},
+  keywords={Image segmentation;Quantization (signal);Image color analysis;Shape;Shape measurement;Neural networks;Lighting;Skin;Robustness;Synthetic data;AI fairness;Biometrics;Colorimetry;Dermatoscopy},
+  doi={10.1109/ELMAR66948.2025.11194005}}
 ```
 
 ## File structure overview
